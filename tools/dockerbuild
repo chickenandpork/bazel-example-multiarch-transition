@@ -1,0 +1,32 @@
+set -x
+
+TEST_TMPDIR=$(mktemp -d)
+trap cleanup 1 2 3 6 15
+cleanup() {
+    test -s "${TEST_TMPDIR}" && rm -fr "${TEST_TMPDIR}"
+    exit 1
+}
+
+WORKSPACE="$(bash cd $(dirname $(dirname $0)) && pwd)"
+
+
+while getopts "a:t::" opt; do
+  case ${opt} in
+    a)
+      ACTION="${OPTARG}"
+      ;;
+    t)
+      TARGETS="${TARGETS} ${OPTARG}"
+      ;;
+    ?)
+      echo "Invalid option: ${OPTARG}."
+      exit 1
+      ;;
+  esac
+done
+
+docker run -e USER="$(id -u)" -u="$(id -u)" -e USE_BAZEL_VERSION="${USE_BAZEL_VERSION:-7.4.0}" \
+  -v ${TEST_TMPDIR}:/tmp -e TEST_TMPDIR=/tmp \
+  -v "${WORKSPACE}:/src/workspace" -w /src/workspace \
+  gcr.io/bazel-public/bazel:latest \
+  --output_user_root=/tmp/build_output ${ACTION:-build} ${TARGETS:-//...}
