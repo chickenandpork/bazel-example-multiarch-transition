@@ -5,7 +5,7 @@ module(
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.10.0")
 
-bazel_dep(name = "buildifier_prebuilt", version = "7.3.1", dev_dependency = True)
+bazel_dep(name = "buildifier_prebuilt", version = "8.0.0", dev_dependency = True)
 
 
 toolchains = use_extension("//toolchains:extensions.bzl", "toolchains")
